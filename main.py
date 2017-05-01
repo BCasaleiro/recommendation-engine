@@ -1,3 +1,4 @@
+import json
 import os.path
 import numpy as np
 
@@ -16,6 +17,9 @@ class Review:
         self.user = user
         self.helpfulness = helpfulness
         self.score = score
+
+def obj_dict(obj):
+    return obj.__dict__
 
 def read_file(fname):
     f = open(fname, 'r');
@@ -81,8 +85,10 @@ def collaborative_filtering(users, products, n):
     return matrix
 
 def main():
-    if os.path.isfile('matrix.txt'):
+    if os.path.isfile('matrix.txt') and os.path.isfile('users.txt'):
         matrix = np.loadtxt('matrix.txt')
+        users_file = open('users.json', 'r')
+        users = json.load(users_file)
     else:
         print 'Reading File...'
         products, reviews = read_file('movies.txt')
@@ -91,6 +97,8 @@ def main():
 
         print 'Processing Users...'
         users = process_users(reviews)
+        users_file = open('users.json', 'w')
+        json.dump(users, users_file, default=obj_dict)
 
         print 'Collaborative Filtering Item-Item...'
         matrix = collaborative_filtering(users, products, len(products))
